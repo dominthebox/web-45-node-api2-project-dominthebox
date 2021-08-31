@@ -87,12 +87,38 @@ router.put('/:id', (req, res) => {
     }
 })
 
-router.delete('/:id', (req, res) => {
-
+router.delete('/:id', async (req, res) => {
+    try {
+        const post = await Posts.findById(req.params.id)
+        {!post ? 
+            res.status(404).json({ 
+                message: "The post with the specified ID does not exist"
+            }) 
+            : 
+            await Posts.remove(req.params.id) 
+            res.json(post)}
+    } catch (err) {
+        res.status(500).json({
+            message: "The comments information could not be retrieved",
+            err: err.message
+        })
+    }
 })
 
-router.get('/:id/comments', (req, res) => {
-
+router.get('/:id/comments', async (req, res) => {
+    try {
+        const post = await Posts.findById(req.params.id)
+        const comments = await Posts.findPostComments(req.params.id)
+        {!post ? res.status(404).json({ 
+            message: "The post with the specified ID does not exist"}) 
+            : 
+            res.json(comments)}
+    } catch (err) {
+        res.status(500).json({
+            message: "The comments information could not be retrieved",
+            err: err.message
+        })
+    }
 })
 
 module.exports = router
